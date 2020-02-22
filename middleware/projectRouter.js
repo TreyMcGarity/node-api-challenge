@@ -1,10 +1,11 @@
 const express = require('express');
-const projecDb = require('../data/helpers/projectModel');
+const projectDb = require('../data/helpers/projectModel');
+const actionDb = require('../data/helpers/actionModel');
 
 const router = express.Router();
 
 router.post('/', validateProject, (req, res) => {
-    projecDb.insert(req.body)
+    projectDb.insert(req.body)
     .then((proj) => {
         res.status(201).json(proj);
     })
@@ -15,8 +16,20 @@ router.post('/', validateProject, (req, res) => {
     })
 });
 
+router.post('/:id/actions', validateProjectId, validateActions, (req, res) => {
+    actionDb.insert(req.body)
+    .then((proj) => {
+      res.status(201).json(proj);
+    })
+    .catch(() => {
+      res.status(500).json({
+        message: "couldn't post this action"
+      })
+    })
+});
+
 router.get('/', (req, res) => {
-    projecDb.get()
+    projectDb.get()
     .then((proj) => {
         res.status(200).json(proj);
     })
@@ -37,8 +50,20 @@ router.get('/:id', validateProjectId, (req, res) => {
     }
 });
 
+router.get('/:id/actions', validateProjectId, (req, res) => {
+    projectDb.getProjectActions(req.project.id)
+    .then((proj) => {
+        res.status(200).json(proj);
+    })
+    .catch(() => {
+        res.status(500).json({
+            message: "couldn't get projects actions"
+        })
+    })
+});
+
 router.put('/:id', validateProjectId, (req, res) => {
-    projecDb.update(req.project.id, req.project)
+    projectDb.update(req.project.id, req.body)
     .then((proj) => {
         res.status(200).json(proj);
     })
@@ -50,7 +75,7 @@ router.put('/:id', validateProjectId, (req, res) => {
 });
 
 router.delete('/:id', validateProjectId, (req, res) => {
-    projecDb.remove(req.project.id)
+    projectDb.remove(req.project.id)
     .then((proj) => {
         res.status(200).json(proj);
     })
@@ -64,7 +89,7 @@ router.delete('/:id', validateProjectId, (req, res) => {
 //middleware
 
 function validateProjectId(req, res, next) {
-    projecDb.get(req.params.id)
+    projectDb.get(req.params.id)
     .then((proj) => {
         if (proj) {
             req.project = proj;
@@ -95,5 +120,25 @@ function validateProject(req, res, next) {
         next();
     }
 }
+
+function validateActions(req, res, next) {
+    response = {
+        project_id: req.params.id,
+        description: req.body.description,
+        notes: req.body.notes
+    }
+    if(!req.body) {
+      res.status(400).json({
+        message: "missing actions data"
+      })
+    } else if (!req.body.description && !req.body.notes) {
+      res.status(400).json({
+        message: "missing required actions fields"
+      })
+    } else {
+      req.body = response;
+      next();
+    }
+}  
 
 module.exports = router;
