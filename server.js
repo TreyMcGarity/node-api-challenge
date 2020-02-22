@@ -1,20 +1,20 @@
 const express = require('express');
 const cors = require('cors');
 const projectRouter = require('./middleware/projectRouter');
-// const actionRouter = require('./middleware/actionRouter');
+const actionRouter = require('./middleware/actionRouter');
 
 const server = express();
 server.use(cors());
 
 server.use(express.json());
-server.use('/api/projects', projectRouter);
-// server.use('/api/posts', logger, actionRouter);
+server.use('/api/projects', logger, projectRouter);
+server.use('/api/actions', logger, actionRouter);
 
 server.get('/', (req, res) => {
   res.send(`<h1>You made it this far.</h1>`);
 });
 
-//custom middleware
+//logger middleware
 
 function logger(req, res, next) {
   console.log(
