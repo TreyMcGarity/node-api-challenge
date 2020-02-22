@@ -2,6 +2,7 @@ import React from 'react';
 import './Project.css';
 
 const Project = props => {
+    console.log(props);
     const {name, description} = props.project;
 
     return (
