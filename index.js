@@ -1,3 +1,8 @@
+const server = require('./server');
+
+server.listen(5000, () => {
+    console.log("listening on port 5000");
+});
 /*
 play this: https://www.youtube.com/watch?v=d-diB65scQU
 
